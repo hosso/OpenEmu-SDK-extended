@@ -81,9 +81,9 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
     return self;
 }
 
-- (OESystemKey *)systemKeyForEvent:(OEHIDEvent *)anEvent;
+- (NSArray<OESystemKey *> *)systemKeyListForEvent:(OEHIDEvent *)anEvent;
 {
-    __block OESystemKey *ret = nil;
+    __block NSArray<OESystemKey *> *ret = nil;
     dispatch_sync(_queue, ^{
         ret = [self->_keyMap objectForKey:anEvent];
     });
@@ -91,10 +91,27 @@ static CFHashCode _OEBindingMapKeyHashCallBack(OEHIDEvent *value)
     return ret;
 }
 
+- (OESystemKey *)systemKeyForEvent:(OEHIDEvent *)anEvent;
+{
+    return [self systemKeyListForEvent:anEvent][0];
+}
+
 - (void)setSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
 {
     dispatch_barrier_async(_queue, ^{
-        [self->_keyMap setObject:aKey forKey:anEvent];
+        NSMutableArray<OESystemKey *> *keylist = [self->_keyMap objectForKey:anEvent];
+        if (keylist == nil) keylist = [NSMutableArray<OESystemKey *> new];
+        [keylist addObject:aKey];
+        [self->_keyMap setObject:keylist forKey:anEvent];
+    });
+}
+
+- (void)removeSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
+{
+    dispatch_barrier_async(_queue, ^{
+        NSMutableArray<OESystemKey *> *keylist = [self->_keyMap objectForKey:anEvent];
+        [keylist removeObject:aKey];
+        if ([keylist count] == 0) [self->_keyMap removeObjectForKey:anEvent];
     });
 }
 

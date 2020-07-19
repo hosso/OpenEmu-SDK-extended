@@ -630,22 +630,6 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
     // Trying to set the same event to the same key, ignore it
     if([[[sender bindingEvents] objectForKey:keyDesc] isEqual:anEvent]) return keyDesc;
 
-    [_keyboardPlayerBindings enumerateKeysAndObjectsUsingBlock:
-     ^(NSNumber *key, OEKeyboardPlayerBindings *playerBindings, BOOL *stop)
-     {
-         NSArray *keys = [[playerBindings bindingEvents] allKeysForObject:anEvent];
-         NSAssert([keys count] <= 1, @"More than one key is attached to the same event: %@ -> %@", anEvent, keys);
-
-         OEKeyBindingDescription *desc = [keys lastObject];
-         if(desc != nil)
-         {
-             [playerBindings OE_setBindingDescription:nil forKey:[desc name]];
-             [playerBindings OE_setBindingEvent:nil forKey:desc];
-
-             [self OE_notifyObserversDidUnsetEvent:anEvent forBindingKey:desc playerNumber:[desc isSystemWide] ? 0 : [playerBindings playerNumber]];
-         }
-     }];
-
     id previousBinding = [sender OE_bindingEventForKey:keyDesc];
     if(previousBinding != nil) [self OE_notifyObserversDidUnsetEvent:previousBinding forBindingKey:keyDesc playerNumber:[sender playerNumber]];
 
@@ -706,26 +690,8 @@ NSString *const OEGlobalButtonRapidFireReset    = @"OEGlobalButtonRapidFireReset
                  }] allObjects];
     }
 
-    // Remove bindings for these keys
-    NSAssert([keys count] <= 1, @"More than one key is attached to the same event: %@ -> %@", anEvent, keys);
-    __kindof OEBindingDescription *keyDesc = [keys lastObject];
-
-    if(keyDesc != nil)
-    {
-        NSArray<NSString *> *keys = nil;
-        if([keyDesc isKindOfClass:[OEKeyBindingDescription class]])
-            keys = @[ [keyDesc name] ];
-        else if([keyDesc isKindOfClass:[OEKeyBindingGroupDescription class]])
-            keys = [keyDesc keyNames];
-
-        for(NSString *key in keys) [sender OE_setBindingDescription:nil forKey:key];
-
-        [sender OE_setBindingEvent:nil forKey:keyDesc];
-        [self OE_notifyObserversDidUnsetEvent:anEvent forBindingKey:keyDesc playerNumber:[sender playerNumber]];
-    }
-
     // Find the appropriate key for the event
-    keyDesc = _systemController.allKeyBindingsDescriptions[keyName];
+    __kindof OEBindingDescription *keyDesc = _systemController.allKeyBindingsDescriptions[keyName];
     [self OE_removeConcurrentBindings:sender ofKey:keyDesc withEvent:anEvent];
 
     switch([anEvent type])
