@@ -826,7 +826,7 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
             break;
     }
 
-    [_keyMap removeSystemKeyForEvent:theEvent];
+    [_keyMap removeSystemKey:[self emulatorKeyForKey:bindingDescription player:playerNumber] forEvent:theEvent];
 }
 
 #pragma mark - Event Responder Method
@@ -858,14 +858,20 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
 
 - (void)HIDKeyDown:(OEHIDEvent *)anEvent
 {
-    OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    NSArray<OESystemKey *> *keylist = [_keyMap systemKeyListForEvent:anEvent];
+    for(OESystemKey *key in keylist)
+    {
+        _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    }
 }
 
 - (void)HIDKeyUp:(OEHIDEvent *)anEvent
 {
-    OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
+    NSArray<OESystemKey *> *keylist = [_keyMap systemKeyListForEvent:anEvent];
+    for(OESystemKey *key in keylist)
+    {
+        _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
+    }
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -964,14 +970,20 @@ else dispatch_async(dispatch_get_main_queue(), blk); \
 
 - (void)buttonDown:(OEHIDEvent *)anEvent
 {
-    OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    NSArray<OESystemKey *> *keylist = [_keyMap systemKeyListForEvent:anEvent];
+    for(OESystemKey *key in keylist)
+    {
+        _OEBasicSystemResponderPressSystemKey(self, key, [key isAnalogic]);
+    }
 }
 
 - (void)buttonUp:(OEHIDEvent *)anEvent
 {
-    OESystemKey *key = [_keyMap systemKeyForEvent:anEvent];
-    if(key != nil) _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
+    NSArray<OESystemKey *> *keylist = [_keyMap systemKeyListForEvent:anEvent];
+    for(OESystemKey *key in keylist)
+    {
+        _OEBasicSystemResponderReleaseSystemKey(self, key, [key isAnalogic]);
+    }
 }
 
 - (void)hatSwitchChanged:(OEHIDEvent *)anEvent;

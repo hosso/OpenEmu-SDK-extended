@@ -33,7 +33,9 @@
 @interface OEBindingMap : NSObject
 
 - (OESystemKey *)systemKeyForEvent:(OEHIDEvent *)anEvent;
+- (NSArray<OESystemKey *> *)systemKeyListForEvent:(OEHIDEvent *)anEvent;
 - (void)setSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
+- (void)removeSystemKey:(OESystemKey *)aKey forEvent:(OEHIDEvent *)anEvent;
 - (void)removeSystemKeyForEvent:(OEHIDEvent *)anEvent;
 
 @end
